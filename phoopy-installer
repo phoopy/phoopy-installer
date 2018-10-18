@@ -1,0 +1,63 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import requests
+import zipfile
+import StringIO
+import json
+import re
+import stat
+
+tags = json.loads(requests.get('https://api.github.com/repos/phoopy/phoopy-skeleton/git/refs/tags?per_page=100').content)
+tags = list(reversed([re.sub(r'(refs/tags/)(.*)', r'\2', t['ref']) for t in tags]))
+
+if len(sys.argv) is not 3 or sys.argv[1] not in tags:
+    error_message = """
+Usaage:
+    {} (VERSION) (FOLDER)
+
+Available Versions:
+    {}
+""".format(sys.argv[0], ', '.join(tags))
+    print(error_message)
+    exit(1)
+
+version = sys.argv[1]
+installed_folder_name = 'phoopy-skeleton-{}'.format(version)
+folder_name = sys.argv[2]
+
+print('Downloading')
+r = requests.get('https://github.com/phoopy/phoopy-skeleton/archive/{}.zip'.format(version), stream=True)
+z = zipfile.ZipFile(StringIO.StringIO(r.content))
+z.extractall()
+
+print('Installing')
+os.rename('./{}'.format(installed_folder_name), './{}'.format(folder_name))
+
+be_executables = [
+    './{}/bin/console'.format(folder_name),
+    './{}/test/functional/console_mock.py'.format(folder_name)
+]
+
+for file in be_executables:
+    st = os.stat(file)
+    os.chmod(file, st.st_mode | stat.S_IEXEC)
+
+final_message = """
+Final steps:
+    1. Enter in the folder {}
+        1.1 `cd {}`
+    2. Install the dependencies:
+        2.1 `pip install -r requeriments.txt`
+        2.2 `pip install -r requeriments-development.txt`
+    4. Create your parameters.yml
+        4.1 `cp app/config/parameters.yml.dist app/config/parameters.yml`
+    5. Run
+        5.1 `bin/console app:hello_world`
+    6. Test
+        6.1 `phulpy test`
+""".format(folder_name, folder_name)
+
+print(final_message)
