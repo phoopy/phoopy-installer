@@ -3,14 +3,19 @@
 
 import os
 import sys
-import requests
 import zipfile
-import StringIO
 import json
 import re
 import stat
 
-tags = json.loads(requests.get('https://api.github.com/repos/phoopy/phoopy-skeleton/git/refs/tags?per_page=100').content)
+try:
+    from StringIO import StringIO as IOWrapper
+    from urllib2 import urlopen
+except ImportError:
+    from io import BytesIO as IOWrapper
+    from urllib.request import urlopen
+
+tags = json.loads(urlopen('https://api.github.com/repos/phoopy/phoopy-skeleton/git/refs/tags?per_page=100').read().decode('utf-8'))
 tags = list(reversed([re.sub(r'(refs/tags/)(.*)', r'\2', t['ref']) for t in tags]))
 
 if len(sys.argv) is not 3 or sys.argv[1] not in tags:
@@ -29,8 +34,8 @@ installed_folder_name = 'phoopy-skeleton-{}'.format(version)
 folder_name = sys.argv[2]
 
 print('Downloading')
-r = requests.get('https://github.com/phoopy/phoopy-skeleton/archive/{}.zip'.format(version), stream=True)
-z = zipfile.ZipFile(StringIO.StringIO(r.content))
+r = urlopen('https://github.com/phoopy/phoopy-skeleton/archive/{}.zip'.format(version))
+z = zipfile.ZipFile(IOWrapper(r.read()))
 z.extractall()
 
 print('Installing')
