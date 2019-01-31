@@ -55,8 +55,8 @@ Final steps:
     1. Enter in the folder {}
         1.1 `cd {}`
     2. Install the dependencies:
-        2.1 `pip install -r requeriments.txt`
-        2.2 `pip install -r requeriments-dev.txt`
+        2.1 `pip install -r requirements.txt`
+        2.2 `pip install -r requirements-dev.txt`
     4. Create your parameters.yml
         4.1 `cp app/config/parameters.yml.dist app/config/parameters.yml`
     5. Run
