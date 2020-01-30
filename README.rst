@@ -1,9 +1,11 @@
-phoopy-skeleton
-================
+Phoopy
+========
 
 .. image:: https://raw.githubusercontent.com/phoopy/phoopy-installer/master/screenshot.png
   :width: 900
   :alt: Screenshot
+
+`Full Documentation <https://github.com/phoopy/phoopy-skeleton/blob/master/DOCUMENTATION.md>`_
 
 Install:
 ''''''''
