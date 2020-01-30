@@ -18,20 +18,41 @@ except ImportError:
 tags = json.loads(urlopen('https://api.github.com/repos/phoopy/phoopy-skeleton/git/refs/tags?per_page=100').read().decode('utf-8'))
 tags = list(reversed([re.sub(r'(refs/tags/)(.*)', r'\2', t['ref']) for t in tags]))
 
-if len(sys.argv) is not 3 or sys.argv[1] not in tags:
-    error_message = """
+error_message = """
 Usaage:
-    {} (VERSION) (FOLDER)
+    {} FOLDER [VERSION]
 
 Available Versions:
     {}
 """.format(sys.argv[0], ', '.join(tags))
+
+for arg in sys.argv:
+    if arg in ['help', '--help', '-help', '-h', '--h']:
+        print(error_message)
+        exit(0)
+
+if len(sys.argv) < 2:
     print(error_message)
     exit(1)
 
-version = sys.argv[1]
+if len(sys.argv) > 2 and sys.argv[2] not in tags:
+    print(error_message)
+    exit(1)
+
+latest = None
+for entry in tags:
+    if latest is None:
+        latest = entry
+        continue
+
+    if int(latest.replace('.', '')) > int(entry.replace('.', '')):
+        continue
+
+    latest = entry
+
+folder_name = sys.argv[1]
+version = sys.argv[2] if len(sys.argv) == 3 else latest
 installed_folder_name = 'phoopy-skeleton-{}'.format(version)
-folder_name = sys.argv[2]
 
 print('Downloading')
 r = urlopen('https://github.com/phoopy/phoopy-skeleton/archive/{}.zip'.format(version))
